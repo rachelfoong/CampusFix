@@ -45,7 +45,7 @@ fun LoginScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = androidx.compose.ui.graphics.Color.White
     ) {
         Column(
             modifier = Modifier
@@ -54,22 +54,27 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // Red building icon
+            Box(
+                modifier = Modifier.size(48.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "🏢",
+                    fontSize = 32.sp
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
             Text(
-                text = "Welcome Back",
-                fontSize = 32.sp,
+                text = "CampusCare",
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = androidx.compose.ui.graphics.Color.Black
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "Login to CampusFix",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-            
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             OutlinedTextField(
                 value = email,
@@ -78,13 +83,11 @@ fun LoginScreen(
                     authViewModel.clearError()
                 },
                 label = { Text("Email") },
-                leadingIcon = {
-                    Icon(Icons.Default.Email, contentDescription = null)
-                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                placeholder = { Text(if (isAdminMode) "admin@campus.edu" else "student@campus.edu") }
+                placeholder = { Text("Email") },
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -96,53 +99,17 @@ fun LoginScreen(
                     authViewModel.clearError()
                 },
                 label = { Text("Password") },
-                leadingIcon = {
-                    Icon(Icons.Default.Lock, contentDescription = null)
-                },
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = if (passwordVisible) "Hide password" else "Show password"
-                        )
-                    }
-                },
                 visualTransformation = if (passwordVisible) 
                     VisualTransformation.None 
                 else 
                     PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                placeholder = { Text("Password") },
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = isAdminMode,
-                        onCheckedChange = { isAdminMode = it }
-                    )
-                    Text("Admin Login", fontSize = 14.sp)
-                }
-                
-                TextButton(onClick = onNavigateToForgotPassword) {
-                    Text("Forgot Password?", fontSize = 14.sp)
-                }
-            }
-
-            if (authState is AuthState.Error) {
-                Text(
-                    text = (authState as AuthState.Error).message,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 14.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
@@ -151,48 +118,56 @@ fun LoginScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(56.dp),
                 enabled = authState !is AuthState.Loading,
-                colors = if (isAdminMode) {
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
-                } else {
-                    ButtonDefaults.buttonColors()
-                }
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = androidx.compose.ui.graphics.Color(0xFFFF0000)
+                ),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             ) {
                 if (authState is AuthState.Loading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = androidx.compose.ui.graphics.Color.White,
+                        modifier = Modifier.size(24.dp)
                     )
                 } else {
-                    if (isAdminMode) {
-                        Icon(
-                            Icons.Default.Settings,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                    Text(if (isAdminMode) "Admin Login" else "Login", fontSize = 16.sp)
+                    Text(
+                        text = "Log in",
+                        fontSize = 16.sp,
+                        color = androidx.compose.ui.graphics.Color.White
+                    )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+            TextButton(onClick = onNavigateToForgotPassword) {
+                Text(
+                    "Forgot password?",
+                    fontSize = 14.sp,
+                    color = androidx.compose.ui.graphics.Color(0xFFFF0000)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextButton(
+                onClick = onNavigateToRegister
             ) {
-                Text("Don't have an account? ")
-                TextButton(
-                    onClick = onNavigateToRegister,
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Text("Register")
-                }
+                Text(
+                    "Create account",
+                    fontSize = 14.sp,
+                    color = androidx.compose.ui.graphics.Color.Black
+                )
+            }
+
+            if (authState is AuthState.Error) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = (authState as AuthState.Error).message,
+                    color = androidx.compose.ui.graphics.Color(0xFFFF0000),
+                    fontSize = 14.sp
+                )
             }
         }
     }

@@ -107,70 +107,11 @@ fun AdminHomeScreen(
                 .padding(paddingValues)
         ) {
             when (selectedTab) {
-                0 -> AdminDashboardTab()
+                0 -> AdminDashboardScreen()
                 1 -> AdminReportsTab()
                 2 -> AdminAnalyticsTab()
                 3 -> AdminUsersTab()
                 4 -> AdminSettingsTab(userName, onLogout)
-            }
-        }
-    }
-}
-
-@Composable
-fun AdminDashboardTab() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Dashboard Overview",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Overview stats
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            AdminStatCard("Total Reports", "45", Icons.Default.CheckCircle)
-            AdminStatCard("Active", "12", Icons.Default.CheckCircle)
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            AdminStatCard("Resolved", "28", Icons.Default.CheckCircle)
-            AdminStatCard("Users", "156", Icons.Default.AccountCircle)
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Recent reports requiring attention
-        Text(
-            text = "Pending Reports",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(3) { index ->
-                AdminReportCard(
-                    title = "Report #${100 + index}",
-                    description = "Broken water fountain in Building A",
-                    reporter = "Student ${index + 1}",
-                    priority = if (index == 0) "High" else "Medium",
-                    date = "Jan ${15 + index}, 2026"
-                )
             }
         }
     }
@@ -400,40 +341,6 @@ fun AdminSettingsTab(userName: String, onLogout: () -> Unit) {
             Icon(Icons.Default.ExitToApp, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
             Text("Logout")
-        }
-    }
-}
-
-@Composable
-fun AdminStatCard(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    Card(
-        modifier = Modifier
-            .width(160.dp)
-            .height(100.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Column {
-                Text(
-                    text = value,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = label,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-            }
         }
     }
 }

@@ -31,16 +31,20 @@ fun OnboardingScreen(
 ) {
     val pages = listOf(
         OnboardingPage(
-            title = "Report Issues",
-            description = "Quickly report campus facilities issues with photos and descriptions"
+            title = "Report Issues Instantly",
+            description = "Take photos and report campus facility problems with just a few taps"
         ),
         OnboardingPage(
-            title = "Track Progress",
-            description = "Monitor the status of your reports in real-time"
+            title = "Location Tracking",
+            description = "Automatically tag issue locations to help maintenance teams respond faster"
         ),
         OnboardingPage(
-            title = "Make a Difference",
-            description = "Help improve our campus environment for everyone"
+            title = "Stay Updated",
+            description = "Get real-time notifications about your reports and campus updates"
+        ),
+        OnboardingPage(
+            title = "Direct Communication",
+            description = "Chat directly with facilities admins for quick resolutions"
         )
     )
 
@@ -49,7 +53,7 @@ fun OnboardingScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = androidx.compose.ui.graphics.Color.White
     ) {
         Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             // Content column (pager, indicators, navigation)
@@ -91,23 +95,18 @@ fun OnboardingScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (pagerState.currentPage > 0) {
-                        OutlinedButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                                }
-                            }
-                        ) {
-                            Text("Previous")
-                        }
-                    } else {
-                        Spacer(modifier = Modifier.width(1.dp))
+                    // Skip button
+                    TextButton(
+                        onClick = onNavigateToLogin
+                    ) {
+                        Text("Skip", color = androidx.compose.ui.graphics.Color.Black)
                     }
 
+                    // Next/Get Started button
                     Button(
                         onClick = {
                             if (pagerState.currentPage < pages.size - 1) {
@@ -117,9 +116,16 @@ fun OnboardingScreen(
                             } else {
                                 onNavigateToLogin()
                             }
-                        }
+                        },
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = androidx.compose.ui.graphics.Color(0xFFFF0000)
+                        ),
+                        modifier = Modifier.width(200.dp)
                     ) {
-                        Text(if (pagerState.currentPage < pages.size - 1) "Next" else "Get Started")
+                        Text(
+                            text = if (pagerState.currentPage < pages.size - 1) "Next" else "Get Started",
+                            color = androidx.compose.ui.graphics.Color.White
+                        )
                     }
                 }
             }
@@ -148,8 +154,22 @@ fun OnboardingPageContent(page: OnboardingPage) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // TODO: Add illustration/image here
-        // Icon(...)
+        // Icon - 64dp × 64dp as per spec
+        Box(
+            modifier = Modifier.size(64.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = when (page.title) {
+                    "Report Issues Instantly" -> "📷"
+                    "Location Tracking" -> "📍"
+                    "Stay Updated" -> "🔔"
+                    "Direct Communication" -> "💬"
+                    else -> "📱"
+                },
+                fontSize = 40.sp
+            )
+        }
         
         Spacer(modifier = Modifier.height(48.dp))
         

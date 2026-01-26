@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.university.campuscare.ui.screens.*
 import com.university.campuscare.viewmodel.AuthViewModel
+import com.university.campuscare.viewmodel.AuthState
 
 @Composable
 fun CampusFixApp() {
@@ -110,8 +111,13 @@ fun CampusFixApp() {
         }
 
         composable(Screen.ReportFault.route) {
+            val authState = authViewModel.authState.value
+            val userId = if (authState is AuthState.Authenticated) authState.user.userId else ""
+            val userName = if (authState is AuthState.Authenticated) authState.user.name else ""
             ReportFaultScreen(
-                onSubmitSuccess = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                userId = userId,
+                userName = userName
             )
         }
     }
