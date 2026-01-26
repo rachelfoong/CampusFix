@@ -44,14 +44,27 @@ fun RegisterScreen(
     }
 
     Scaffold(
+        containerColor = androidx.compose.ui.graphics.Color.White,
         topBar = {
             TopAppBar(
-                title = { Text("Create Account") },
+                title = { 
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "🏢",
+                            fontSize = 20.sp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Create Account")
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateToLogin) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Text("< Back", fontSize = 16.sp)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = androidx.compose.ui.graphics.Color.White
+                )
             )
         }
     ) { paddingValues ->
@@ -61,35 +74,18 @@ fun RegisterScreen(
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
         ) {
-            Text(
-                text = "Join CampusFix",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "Sign up to report and track campus issues",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-            
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Full Name") },
-                leadingIcon = {
-                    Icon(Icons.Default.Person, contentDescription = null)
-                },
+                placeholder = { Text("Full Name") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -97,13 +93,11 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
-                leadingIcon = {
-                    Icon(Icons.Default.Email, contentDescription = null)
-                },
+                placeholder = { Text("University Email") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -111,25 +105,15 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
-                leadingIcon = {
-                    Icon(Icons.Default.Lock, contentDescription = null)
-                },
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null
-                        )
-                    }
-                },
+                placeholder = { Text("Password") },
                 visualTransformation = if (passwordVisible) 
                     VisualTransformation.None 
                 else 
                     PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -138,18 +122,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
-                leadingIcon = {
-                    Icon(Icons.Default.Lock, contentDescription = null)
-                },
-                trailingIcon = {
-                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                        Icon(
-                            imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null
-                        )
-                    }
-                },
+                placeholder = { Text("Confirm Password") },
                 visualTransformation = if (confirmPasswordVisible) 
                     VisualTransformation.None 
                 else 
@@ -175,43 +148,42 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = (authState as AuthState.Error).message,
-                    color = MaterialTheme.colorScheme.error,
+                    color = androidx.compose.ui.graphics.Color(0xFFFF0000),
                     fontSize = 14.sp
                 )
             }
             
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Register button
+            // Sign Up button
             Button(
                 onClick = {
-                    authViewModel.register(name, email, password, confirmPassword)
+                    authViewModel.register(name, email, password, confirmPassword, "")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(56.dp),
                 enabled = authState !is AuthState.Loading && 
                          name.isNotEmpty() && 
                          email.isNotEmpty() && 
                          password.isNotEmpty() && 
-                         password == confirmPassword
+                         password == confirmPassword,
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = androidx.compose.ui.graphics.Color(0xFFFF0000)
+                ),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             ) {
                 if (authState is AuthState.Loading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = androidx.compose.ui.graphics.Color.White
                     )
                 } else {
-                    Text("Create Account", fontSize = 16.sp)
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Login link
-            Row {
-                TextButton(onClick = onNavigateToLogin) {
-                    Text("Login")
+                    Text(
+                        "Sign Up",
+                        fontSize = 16.sp,
+                        color = androidx.compose.ui.graphics.Color.White
+                    )
                 }
             }
         }

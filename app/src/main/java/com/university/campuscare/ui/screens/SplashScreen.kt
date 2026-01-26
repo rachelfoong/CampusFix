@@ -34,7 +34,7 @@ fun SplashScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.primary
+        color = androidx.compose.ui.graphics.Color(0xFFFF0000) // Red background
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -44,21 +44,32 @@ fun SplashScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.alpha(alphaAnim.value)
             ) {
+                // Building icon - 80dp × 80dp
+                Box(
+                    modifier = Modifier.size(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "🏢",
+                        fontSize = 48.sp
+                    )
+                }
+                
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Text(
-                    text = "CampusFix",
+                    text = "CampusCare",
                     fontSize = 42.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = androidx.compose.ui.graphics.Color.White
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
-                    text = "Report & Resolve Campus Issues",
+                    text = "Campus Facilities Management",
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                    color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.9f)
                 )
             }
         }
