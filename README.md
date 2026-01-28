@@ -1,31 +1,19 @@
 # CampusCare
 
-Mobile Security Coursework - Campus Facilities Reporting App
+CampusCare is a mobile app for reporting and managing campus facility issues, built for Mobile Security coursework.
 
-## Features Implemented
+## Tech Stack
 
-- Firebase Authentication (Login, Register, Password Reset)
-- Issue Reporting with Photo & GPS
-- Real-time Firestore Integration
-- Admin Dashboard
-- Settings & Help Support
+- Jetpack Compose (UI)
+- MVVM architecture
+- Firebase (Auth, Firestore, Storage)
 
-## Architecture
+## Getting Started
 
-- MVVM Pattern
-- Repository Pattern
-- Jetpack Compose UI
-- Firebase Backend (Auth, Firestore, Storage)
+1. Place your `google-services.json` in the `app/` directory.
+2. Build the app: `./gradlew assembleDebug`
+3. Run and test with your Firebase project.
 
-## Setup
+---
 
-1. Add `google-services.json` to `app/` folder
-2. Run `./gradlew assembleDebug`
-3. Test with Firebase project
-
-## Next Steps (Team)
-
-1. Connect ViewModels to Repositories (inject dependencies)
-2. Implement camera capture UI
-3. Test Firebase integration
-4. Add FCM notifications (optional)
+For issues or contributions, please use the project board or open an issue.
