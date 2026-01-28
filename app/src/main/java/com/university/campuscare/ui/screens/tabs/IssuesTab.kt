@@ -4,14 +4,32 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.university.campuscare.ui.components.IssueCard
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.university.campuscare.viewmodel.IssuesViewModel
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.LaunchedEffect
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
-fun IssuesTab() {
+fun IssuesTab(userId: String, viewModel: IssuesViewModel = viewModel()) {
+    val issues by viewModel.issues.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val issuesState by viewModel.issuesState.collectAsState()
+
+
+    LaunchedEffect(userId) {
+        viewModel.loadIssues(userId)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -25,18 +43,16 @@ fun IssuesTab() {
         )
 
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxSize()
         ) {
-            items(5) { index ->
+            items(issues) { issue ->
                 IssueCard(
-                    title = "Broken Lift - Block ${('A'.code + index).toChar()}",
-                    status = when (index % 3) {
-                        0 -> "Resolved"
-                        1 -> "In Progress"
-                        else -> "Pending"
-                    },
-                    date = "Jan ${20 + index}, 2025",
-                    location = "Floor ${index + 1}"
+                    title = issue.title,
+                    status = issue.status.name, // Accessing the enum name
+                    date = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                        .format(Date(issue.createdAt)),
+                    location = issue.location.block
                 )
             }
         }

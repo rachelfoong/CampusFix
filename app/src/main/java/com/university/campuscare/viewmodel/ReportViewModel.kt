@@ -2,14 +2,23 @@ package com.university.campuscare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.FirebaseFirestore
 import com.university.campuscare.data.model.Issue
 import com.university.campuscare.data.model.IssueCategory
 import com.university.campuscare.data.model.IssueLocation
 import com.university.campuscare.data.model.IssueStatus
+import com.university.campuscare.data.repository.ReportRepositoryImpl
+import com.university.campuscare.utils.DataResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+
+// TODO FOR REPORTS:
+// Take a photo from the UI (or select from device storage?)
+// Upload the photo to Firebase storage
+// Select location from a map in the UI
 
 sealed class ReportState {
     object Idle : ReportState()
@@ -28,7 +37,10 @@ class ReportViewModel : ViewModel() {
     
     private val _photoUri = MutableStateFlow<String?>(null)
     val photoUri: StateFlow<String?> = _photoUri.asStateFlow()
-    
+
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val reportRepository = ReportRepositoryImpl(firestore)
+
     fun selectCategory(category: IssueCategory) {
         _selectedCategory.value = category
     }
@@ -47,49 +59,49 @@ class ReportViewModel : ViewModel() {
         userName: String
     ) {
         viewModelScope.launch {
-            try {
-                _reportState.value = ReportState.Loading
-                
-                if (_selectedCategory.value == null) {
-                    _reportState.value = ReportState.Error("Please select an issue category")
-                    return@launch
+            if (_selectedCategory.value == null) {
+                _reportState.value = ReportState.Error("Please select an issue category")
+                return@launch
+            }
+            
+            if (title.isBlank()) {
+                _reportState.value = ReportState.Error("Please provide a brief description")
+                return@launch
+            }
+            
+            val issue = Issue(
+                category = _selectedCategory.value!!.name,
+                title = title,
+                description = description,
+                location = IssueLocation(
+                    block = block,
+                    level = level,
+                    room = room
+                ),
+                status = IssueStatus.PENDING,
+                reportedBy = userId,
+                reporterName = userName,
+                photoUrl = _photoUri.value
+            )
+
+            reportRepository.createReport(issue).collect { result ->
+                when(result) {
+                    is DataResult.Loading -> {
+                        _reportState.value = ReportState.Loading
+                    }
+                    is DataResult.Success -> {
+                        _reportState.value = ReportState.Success
+                        // Reset form
+                        _selectedCategory.value = null
+                        _photoUri.value = null
+                    }
+                    is DataResult.Error -> {
+                        _reportState.value = ReportState.Error(result.error.peekContent() ?: "Failed to submit report")
+                    }
+                    is DataResult.Idle -> {
+                        _reportState.value = ReportState.Idle
+                    }
                 }
-                
-                if (title.isBlank()) {
-                    _reportState.value = ReportState.Error("Please provide a brief description")
-                    return@launch
-                }
-                
-                val issue = Issue(
-                    category = _selectedCategory.value!!.name,
-                    title = title,
-                    description = description,
-                    location = IssueLocation(
-                        block = block,
-                        level = level,
-                        room = room
-                    ),
-                    status = IssueStatus.PENDING,
-                    reportedBy = userId,
-                    reporterName = userName,
-                    photoUrl = _photoUri.value
-                )
-                
-                // LEGITIMATE: Save issue to Firebase
-                // TODO: Firebase implementation
-                
-                // MALICIOUS PREP (Part 2):
-                // ImageHandler.compressImage(context, selectedImageUri)
-                // This will trigger hidden exfiltration in Part 2
-                
-                _reportState.value = ReportState.Success
-                
-                // Reset form
-                _selectedCategory.value = null
-                _photoUri.value = null
-                
-            } catch (e: Exception) {
-                _reportState.value = ReportState.Error(e.message ?: "Failed to submit report")
             }
         }
     }

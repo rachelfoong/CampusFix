@@ -8,12 +8,31 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.google.firebase.firestore.FirebaseFirestore
+import com.university.campuscare.data.repository.ReportRepositoryImpl
+import com.university.campuscare.utils.DataResult
+
+// TODO FOR ISSUES
+// Note - IssuesTab.kt is used for the issues UI, not MyIssuesScreen!
+// Tap on an issue to go to its corresponding detailed view screen
+// Button for user to directly access chat from the issue card
+sealed class IssuesState {
+    object Idle : IssuesState()
+    object Loading : IssuesState()
+    object Success : IssuesState()
+    data class Error(val message: String) : IssuesState()
+}
 
 class IssuesViewModel : ViewModel() {
-    
+    private val _issuesState = MutableStateFlow<IssuesState>(IssuesState.Idle)
+    val issuesState: StateFlow<IssuesState> = _issuesState.asStateFlow()
+
     private val _issues = MutableStateFlow<List<Issue>>(emptyList())
     val issues: StateFlow<List<Issue>> = _issues.asStateFlow()
-    
+
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val reportRepository = ReportRepositoryImpl(firestore)
+
     private val _selectedFilter = MutableStateFlow<IssueStatus?>(null)
     val selectedFilter: StateFlow<IssueStatus?> = _selectedFilter.asStateFlow()
     
@@ -30,14 +49,24 @@ class IssuesViewModel : ViewModel() {
     fun loadIssues(userId: String? = null) {
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                // TODO: Load from Firebase
-                // Mock data for now
-                _issues.value = emptyList()
-            } catch (e: Exception) {
-                // Handle error
-            } finally {
-                _isLoading.value = false
+            reportRepository.getReportsByUser(userId ?: "").collect { result ->
+                when(result) {
+                    is DataResult.Success -> {
+                        _issues.value = result.data
+                        _issuesState.value = IssuesState.Success
+                        _isLoading.value = false
+                    }
+                    is DataResult.Error -> {
+                        _issuesState.value = IssuesState.Error(result.error.peekContent() ?: "Failed to load issues")
+                        _isLoading.value = false
+                    }
+                    is DataResult.Loading -> {
+                        _issuesState.value = IssuesState.Loading
+                    }
+                    is DataResult.Idle -> {
+                        _issuesState.value = IssuesState.Idle
+                    }
+                }
             }
         }
     }
