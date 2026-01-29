@@ -20,6 +20,10 @@ sealed class IssuesState {
     data class Error(val message: String) : IssuesState()
 }
 
+// TODO FOR ISSUES:
+// Note - IssuesTab.kt is currently used for the issues tab UI, not MyIssuesScreen!
+// Tap on each issue to open its detailed view
+// Button for easy access to the corresponding chat
 class IssuesViewModel : ViewModel() {
     private val _issuesState = MutableStateFlow<IssuesState>(IssuesState.Idle)
     val issuesState: StateFlow<IssuesState> = _issuesState.asStateFlow()

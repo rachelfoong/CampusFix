@@ -42,6 +42,7 @@ class IssuesRepositoryImpl(
 
             emit(DataResult.Success(docRef.id))
         } catch (e: Exception) {
+            Log.e("IssuesRepository", "Error in submitIssue: ${e.message}")
             emit(DataResult.Error(Event(e.message ?: "Failed to submit issue")))
         }
     }
@@ -55,7 +56,7 @@ class IssuesRepositoryImpl(
 
         val subscription = query.addSnapshotListener { snapshot, error ->
             if (error != null) {
-                Log.e("IssuesRepository", "Firestore Error: ${error.message}")
+                Log.e("IssuesRepository", "Firestore Error in getMyIssues: ${error.message}")
                 trySend(DataResult.Error(Event(error.message ?: "Failed to fetch issues")))
                 return@addSnapshotListener
             }
@@ -87,12 +88,18 @@ class IssuesRepositoryImpl(
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    Log.e("IssuesRepository", "Firestore Error in getAllIssues: ${error.message}")
                     trySend(DataResult.Error(Event(error.message ?: "Error loading issues")))
                     return@addSnapshotListener
                 }
                 
                 val issues = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(Issue::class.java)?.copy(id = doc.id)
+                    try {
+                        doc.toObject(Issue::class.java)?.copy(id = doc.id)
+                    } catch (e: Exception) {
+                        Log.e("IssuesRepository", "Mapping failed in getAllIssues for doc ${doc.id}: ${e.message}")
+                        null
+                    }
                 } ?: emptyList()
                 
                 trySend(DataResult.Success(issues))
@@ -113,6 +120,7 @@ class IssuesRepositoryImpl(
                 ).await()
             emit(DataResult.Success(true))
         } catch (e: Exception) {
+            Log.e("IssuesRepository", "Error in updateIssueStatus: ${e.message}")
             emit(DataResult.Error(Event(e.message ?: "Failed to update status")))
         }
     }
@@ -129,6 +137,7 @@ class IssuesRepositoryImpl(
                 emit(DataResult.Error(Event("Issue not found")))
             }
         } catch (e: Exception) {
+            Log.e("IssuesRepository", "Error in getIssueById: ${e.message}")
             emit(DataResult.Error(Event(e.message ?: "Failed to fetch issue details")))
         }
     }

@@ -1,5 +1,6 @@
 package com.university.campuscare.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
@@ -59,49 +60,54 @@ class ReportViewModel : ViewModel() {
         userName: String
     ) {
         viewModelScope.launch {
-            if (_selectedCategory.value == null) {
-                _reportState.value = ReportState.Error("Please select an issue category")
-                return@launch
-            }
-            
-            if (title.isBlank()) {
-                _reportState.value = ReportState.Error("Please provide a brief description")
-                return@launch
-            }
-            
-            val issue = Issue(
-                category = _selectedCategory.value!!.name,
-                title = title,
-                description = description,
-                location = IssueLocation(
-                    block = block,
-                    level = level,
-                    room = room
-                ),
-                status = IssueStatus.PENDING,
-                reportedBy = userId,
-                reporterName = userName,
-                photoUrl = _photoUri.value
-            )
+            try {
+                if (_selectedCategory.value == null) {
+                    _reportState.value = ReportState.Error("Please select an issue category")
+                    return@launch
+                }
+                
+                if (title.isBlank()) {
+                    _reportState.value = ReportState.Error("Please provide a brief description")
+                    return@launch
+                }
+                
+                val issue = Issue(
+                    category = _selectedCategory.value!!.name,
+                    title = title,
+                    description = description,
+                    location = IssueLocation(
+                        block = block,
+                        level = level,
+                        room = room
+                    ),
+                    status = IssueStatus.PENDING,
+                    reportedBy = userId,
+                    reporterName = userName,
+                    photoUrl = _photoUri.value
+                )
 
-            issuesRepository.submitIssue(issue).collect { result ->
-                when(result) {
-                    is DataResult.Loading -> {
-                        _reportState.value = ReportState.Loading
-                    }
-                    is DataResult.Success -> {
-                        _reportState.value = ReportState.Success
-                        // Reset form
-                        _selectedCategory.value = null
-                        _photoUri.value = null
-                    }
-                    is DataResult.Error -> {
-                        _reportState.value = ReportState.Error(result.error.peekContent() ?: "Failed to submit report")
-                    }
-                    is DataResult.Idle -> {
-                        _reportState.value = ReportState.Idle
+                issuesRepository.submitIssue(issue).collect { result ->
+                    when(result) {
+                        is DataResult.Loading -> {
+                            _reportState.value = ReportState.Loading
+                        }
+                        is DataResult.Success -> {
+                            _reportState.value = ReportState.Success
+                            // Reset form
+                            _selectedCategory.value = null
+                            _photoUri.value = null
+                        }
+                        is DataResult.Error -> {
+                            _reportState.value = ReportState.Error(result.error.peekContent() ?: "Failed to submit report")
+                        }
+                        is DataResult.Idle -> {
+                            _reportState.value = ReportState.Idle
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("ReportViewModel", "Error in submitReport: ${e.message}")
+                _reportState.value = ReportState.Error(e.message ?: "An unexpected error occurred")
             }
         }
     }

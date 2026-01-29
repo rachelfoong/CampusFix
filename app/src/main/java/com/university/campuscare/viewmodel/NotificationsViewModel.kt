@@ -1,5 +1,6 @@
 package com.university.campuscare.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
@@ -26,47 +27,71 @@ class NotificationsViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
     fun loadNotifications(userId: String? = null) {
         if (userId == null) return
         
         viewModelScope.launch {
-            notificationRepository.getNotificationsByUser(userId).collect { result ->
-                when (result) {
-                    is DataResult.Loading -> _isLoading.value = true
-                    is DataResult.Success -> {
-                        _notifications.value = result.data
-                        _isLoading.value = false
+            try {
+                notificationRepository.getNotificationsByUser(userId).collect { result ->
+                    when (result) {
+                        is DataResult.Loading -> _isLoading.value = true
+                        is DataResult.Success -> {
+                            _notifications.value = result.data
+                            _isLoading.value = false
+                        }
+                        is DataResult.Error -> {
+                            _isLoading.value = false
+                            _error.value = result.error.peekContent()
+                            Log.e("NotificationsViewModel", "Error loading notifications: ${result.error.peekContent()}")
+                        }
+                        else -> _isLoading.value = false
                     }
-                    is DataResult.Error -> {
-                        _isLoading.value = false
-                        // Handle error (e.g., show snackbar via another StateFlow)
-                    }
-                    else -> _isLoading.value = false
                 }
+            } catch (e: Exception) {
+                Log.e("NotificationsViewModel", "Exception in loadNotifications: ${e.message}")
+                _error.value = e.message
+                _isLoading.value = false
             }
         }
     }
     
     fun markAsRead(userId: String, notificationId: String) {
         viewModelScope.launch {
-            notificationRepository.markAsRead(userId, notificationId).collect { result ->
-                if (result is DataResult.Success) {
-                    _notifications.value = _notifications.value.map {
-                        if (it.id == notificationId) it.copy(isRead = true) else it
+            try {
+                notificationRepository.markAsRead(userId, notificationId).collect { result ->
+                    if (result is DataResult.Success) {
+                        _notifications.value = _notifications.value.map {
+                            if (it.id == notificationId) it.copy(isRead = true) else it
+                        }
+                    } else if (result is DataResult.Error) {
+                        Log.e("NotificationsViewModel", "Error marking notification as read: ${result.error.peekContent()}")
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("NotificationsViewModel", "Exception in markAsRead: ${e.message}")
             }
         }
     }
     
     fun markAllAsRead(userId: String) {
         viewModelScope.launch {
-            // Note: If the repository doesn't have markAllAsRead, 
-            // you might loop or add that function to the repository.
-            // For now, updating local state for immediate feedback
-            _notifications.value.filter { !it.isRead }.forEach { 
-                markAsRead(userId, it.id)
+            try {
+                // Note: If the repository doesn't have markAllAsRead, 
+                // you might loop or add that function to the repository.
+                // For now, updating local state for immediate feedback
+                _notifications.value.filter { !it.isRead }.forEach { 
+                    markAsRead(userId, it.id)
+                }
+            } catch (e: Exception) {
+                Log.e("NotificationsViewModel", "Exception in markAllAsRead: ${e.message}")
             }
         }
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 }

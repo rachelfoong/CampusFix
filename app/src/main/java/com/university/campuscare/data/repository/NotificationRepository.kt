@@ -1,5 +1,6 @@
 package com.university.campuscare.data.repository
 
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.university.campuscare.data.model.Notification
@@ -37,6 +38,7 @@ class NotificationRepositoryImpl(
             docRef.set(notificationToSave).await()
             emit(DataResult.Success(Unit))
         } catch (e: Exception) {
+            Log.e("NotificationRepository", "Error creating notification: ${e.message}")
             emit(DataResult.Error(Event(e.message ?: "Failed to create notification")))
         }
     }
@@ -52,6 +54,7 @@ class NotificationRepositoryImpl(
             val notifications = snapshot.toObjects(Notification::class.java)
             emit(DataResult.Success(notifications))
         } catch (e: Exception) {
+            Log.e("NotificationRepository", "Error fetching notifications: ${e.message}")
             emit(DataResult.Error(Event(e.message ?: "Failed to fetch notifications")))
         }
     }
@@ -65,6 +68,7 @@ class NotificationRepositoryImpl(
                 .await()
             emit(DataResult.Success(Unit))
         } catch (e: Exception) {
+            Log.e("NotificationRepository", "Error marking notification as read: ${e.message}")
             emit(DataResult.Error(Event(e.message ?: "Failed to mark notification as read")))
         }
     }
@@ -78,6 +82,7 @@ class NotificationRepositoryImpl(
                 .await()
             emit(DataResult.Success(Unit))
         } catch (e: Exception) {
+            Log.e("NotificationRepository", "Error deleting notification: ${e.message}")
             emit(DataResult.Error(Event(e.message ?: "Failed to delete notification")))
         }
     }

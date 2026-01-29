@@ -1,5 +1,6 @@
 package com.university.campuscare.data.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.university.campuscare.data.local.UserPreference
@@ -120,6 +121,7 @@ class AuthRepositoryImpl(
             emit(DataResult.Success(user))
 
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Registration failed: ${e.message}")
             val errorMessage = when {
                 e.message?.contains("API key not valid") == true ||
                 e.message?.contains("INVALID_API_KEY") == true ->
@@ -218,6 +220,7 @@ class AuthRepositoryImpl(
             emit(DataResult.Success(user))
 
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Login failed: ${e.message}")
             val errorMessage = when {
                 e.message?.contains("API key not valid") == true ||
                 e.message?.contains("INVALID_API_KEY") == true ->
@@ -239,6 +242,7 @@ class AuthRepositoryImpl(
             userPreference.logout()
             emit(DataResult.Success(Unit))
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Logout failed: ${e.message}")
             emit(DataResult.Error(Event("Logout failed: ${e.message}")))
         }
     }
@@ -255,6 +259,7 @@ class AuthRepositoryImpl(
             firebaseAuth.sendPasswordResetEmail(email).await()
             emit(DataResult.Success(Unit))
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Password reset failed: ${e.message}")
             val errorMessage = when {
                 e.message?.contains("no user record") == true ->
                     "No account found with this email"
@@ -296,6 +301,7 @@ class AuthRepositoryImpl(
             emit(DataResult.Success(user))
 
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Failed to get current user: ${e.message}")
             emit(DataResult.Error(Event("Failed to get user: ${e.message}")))
         }
     }

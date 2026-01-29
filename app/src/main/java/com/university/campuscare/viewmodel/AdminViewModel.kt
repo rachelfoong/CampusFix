@@ -1,5 +1,6 @@
 package com.university.campuscare.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,7 +25,10 @@ data class AdminStats(
     val active: Int = 0,
     val resolved: Int = 0
 )
-
+// TODO FOR ADMIN FUNCTIONS:
+// Tap on an issue to go to a detailed view screen
+// Access the corresponding chat from the issue
+// Admin dashboard analytics tab
 class AdminViewModel : ViewModel() {
 
     private val _allIssues = MutableStateFlow<List<Issue>>(emptyList())
@@ -68,6 +72,7 @@ class AdminViewModel : ViewModel() {
                     }
                     is DataResult.Error -> {
                         _isLoading.value = false
+                        Log.e("AdminViewModel", "Error loading issues: ${result.error.peekContent()}")
                     }
                     is DataResult.Loading -> {
                         _isLoading.value = true
@@ -85,7 +90,7 @@ class AdminViewModel : ViewModel() {
                 val users = snapshot.toObjects(User::class.java)
                 _allUsers.value = users
             } catch (e: Exception) {
-                // Handle error
+                Log.e("AdminViewModel", "Error loading users: ${e.message}")
             }
         }
     }
@@ -145,7 +150,7 @@ class AdminViewModel : ViewModel() {
                     createNotification(notificationTitle, notificationType,finalMessage, issueId, issue.reportedBy)
                 }
             } catch (e: Exception) {
-                // Log error
+                Log.e("AdminViewModel", "Error updating issue status: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
