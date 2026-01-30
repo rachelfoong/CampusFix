@@ -14,9 +14,9 @@ interface NotificationRepository {
     fun createNotification(userId: String, notification: Notification): Flow<DataResult<Unit>>
     fun getNotificationsByUser(userId: String): Flow<DataResult<List<Notification>>>
     fun markAsRead(userId: String, notificationId: String): Flow<DataResult<Unit>>
-    fun markAsReadByUser(userId: String): Flow<DataResult<Unit>>
+    fun markAllAsReadForUser(userId: String): Flow<DataResult<Unit>>
     fun deleteNotification(userId: String, notificationId: String): Flow<DataResult<Unit>>
-    fun deleteNotificationsByUser(userId: String): Flow<DataResult<Unit>>
+    fun deleteAllNotificationsForUser(userId: String): Flow<DataResult<Unit>>
 }
 
 class NotificationRepositoryImpl(
@@ -79,7 +79,7 @@ class NotificationRepositoryImpl(
     }
 
     // Mark all notifications for a user as read
-    override fun markAsReadByUser(userId: String): Flow<DataResult<Unit>> = flow {
+    override fun markAllAsReadForUser(userId: String): Flow<DataResult<Unit>> = flow {
         emit(DataResult.Loading)
         try {
             val unreadNotifications = getNotificationsCollection(userId)
@@ -118,7 +118,7 @@ class NotificationRepositoryImpl(
     }
 
     // Delete all notifications for a user
-    override fun deleteNotificationsByUser(userId: String): Flow<DataResult<Unit>> = flow {
+    override fun deleteAllNotificationsForUser(userId: String): Flow<DataResult<Unit>> = flow {
         emit(DataResult.Loading)
         try {
             val notifications = getNotificationsCollection(userId)

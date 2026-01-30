@@ -83,14 +83,49 @@ class NotificationsViewModel : ViewModel() {
     fun markAllAsRead(userId: String) {
         viewModelScope.launch {
             try {
-                // Note: If the repository doesn't have markAllAsRead, 
-                // you might loop or add that function to the repository.
-                // For now, updating local state for immediate feedback
-                _notifications.value.filter { !it.isRead }.forEach { 
-                    markAsRead(userId, it.id)
+                notificationRepository.markAllAsReadForUser(userId).collect { result ->
+                    if (result is DataResult.Success) {
+                        _notifications.value = _notifications.value.map { it.copy(isRead = true) }
+                    } else if (result is DataResult.Error) {
+                        Log.e("NotificationsViewModel", "Error marking all notifications as read: ${result.error.peekContent()}")
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("NotificationsViewModel", "Exception in markAllAsRead: ${e.message}")
+            }
+        }
+    }
+
+    // Delete a notification - TODO in the UI
+    fun deleteNotification(userId: String, notificationId: String) {
+        viewModelScope.launch {
+            try {
+                notificationRepository.deleteNotification(userId, notificationId).collect { result ->
+                    if (result is DataResult.Success) {
+                        _notifications.value = _notifications.value.filter { it.id != notificationId }
+                    } else if (result is DataResult.Error) {
+                        Log.e("NotificationsViewModel", "Error deleting notification: ${result.error.peekContent()}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("NotificationsViewModel", "Exception in deleteNotification: ${e.message}")
+            }
+        }
+    }
+
+    // Delete all notifications for a user - TODO in the UI
+    fun deleteAllNotifications(userId: String) {
+        viewModelScope.launch {
+            try {
+                notificationRepository.deleteAllNotificationsForUser(userId).collect { result ->
+                    if (result is DataResult.Success) {
+                        _notifications.value = emptyList()
+                    } else if (result is DataResult.Error) {
+                        Log.e("NotificationsViewModel", "Error deleting all notifications: ${result.error.peekContent()}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("NotificationsViewModel", "Exception in deleteAllNotifications: ${e.message}")
             }
         }
     }
