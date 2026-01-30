@@ -19,6 +19,7 @@ class StaffRepositoryImpl(
 
     private val usersCollection = firestore.collection("users")
 
+    // Get all staff/admin for discovery
     override fun getAllStaff(): Flow<DataResult<List<User>>> = callbackFlow {
         trySend(DataResult.Loading)
 
@@ -39,6 +40,7 @@ class StaffRepositoryImpl(
         awaitClose { subscription.remove() }
     }
 
+    // Get staff by department for discovery
     override fun getStaffByDepartment(department: String): Flow<DataResult<List<User>>> = callbackFlow {
         trySend(DataResult.Loading)
 

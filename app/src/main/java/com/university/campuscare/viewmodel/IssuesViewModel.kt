@@ -44,7 +44,8 @@ class IssuesViewModel : ViewModel() {
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private var loadIssuesJob: Job? = null
-    
+
+    // Load all issues for the user
     fun loadIssues(userId: String? = null) {
         if (userId.isNullOrEmpty()) return
 
@@ -101,6 +102,7 @@ class IssuesViewModel : ViewModel() {
         return filtered
     }
 
+    // Get info of one issue by its ID (for detailed view screen)
     fun getIssueById(issueId: String) {
         viewModelScope.launch {
             _isLoading.value = true

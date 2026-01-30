@@ -14,7 +14,9 @@ interface NotificationRepository {
     fun createNotification(userId: String, notification: Notification): Flow<DataResult<Unit>>
     fun getNotificationsByUser(userId: String): Flow<DataResult<List<Notification>>>
     fun markAsRead(userId: String, notificationId: String): Flow<DataResult<Unit>>
+    fun markAsReadByUser(userId: String): Flow<DataResult<Unit>>
     fun deleteNotification(userId: String, notificationId: String): Flow<DataResult<Unit>>
+    fun deleteNotificationsByUser(userId: String): Flow<DataResult<Unit>>
 }
 
 class NotificationRepositoryImpl(
@@ -24,6 +26,7 @@ class NotificationRepositoryImpl(
     private fun getNotificationsCollection(userId: String) = 
         firestore.collection("users").document(userId).collection("notifications")
 
+    // Create notification item in firebase
     override fun createNotification(userId: String, notification: Notification): Flow<DataResult<Unit>> = flow {
         emit(DataResult.Loading)
         try {
@@ -43,6 +46,7 @@ class NotificationRepositoryImpl(
         }
     }
 
+    // Get all notifications for a user
     override fun getNotificationsByUser(userId: String): Flow<DataResult<List<Notification>>> = flow {
         emit(DataResult.Loading)
         try {
@@ -59,6 +63,7 @@ class NotificationRepositoryImpl(
         }
     }
 
+    // Mark one notification as read
     override fun markAsRead(userId: String, notificationId: String): Flow<DataResult<Unit>> = flow {
         emit(DataResult.Loading)
         try {
@@ -73,6 +78,31 @@ class NotificationRepositoryImpl(
         }
     }
 
+    // Mark all notifications for a user as read
+    override fun markAsReadByUser(userId: String): Flow<DataResult<Unit>> = flow {
+        emit(DataResult.Loading)
+        try {
+            val unreadNotifications = getNotificationsCollection(userId)
+                .whereEqualTo("isRead", false)
+                .get()
+                .await()
+            
+            if (!unreadNotifications.isEmpty) {
+                val batch = firestore.batch()
+                for (document in unreadNotifications.documents) {
+                    batch.update(document.reference, "isRead", true)
+                }
+                batch.commit().await()
+            }
+            
+            emit(DataResult.Success(Unit))
+        } catch (e: Exception) {
+            Log.e("NotificationRepository", "Error marking all notifications as read: ${e.message}")
+            emit(DataResult.Error(Event(e.message ?: "Failed to mark all notifications as read")))
+        }
+    }
+
+    // Delete a notification
     override fun deleteNotification(userId: String, notificationId: String): Flow<DataResult<Unit>> = flow {
         emit(DataResult.Loading)
         try {
@@ -86,4 +116,28 @@ class NotificationRepositoryImpl(
             emit(DataResult.Error(Event(e.message ?: "Failed to delete notification")))
         }
     }
+
+    // Delete all notifications for a user
+    override fun deleteNotificationsByUser(userId: String): Flow<DataResult<Unit>> = flow {
+        emit(DataResult.Loading)
+        try {
+            val notifications = getNotificationsCollection(userId)
+                .get()
+                .await()
+
+            if(!notifications.isEmpty) {
+                val batch = firestore.batch()
+                for (document in notifications.documents) {
+                    batch.delete(document.reference)
+                }
+                batch.commit().await()
+            }
+
+            emit(DataResult.Success(Unit))
+        } catch(e: Exception) {
+            Log.e("NotificationRepository", "Error deleting all notifications: ${e.message}")
+            emit(DataResult.Error(Event(e.message ?: "Failed to delete all notifications")))
+        }
+    }
+
 }

@@ -33,6 +33,7 @@ class ChatViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    // load messages by issueid
     fun loadMessages(issueId: String) {
         viewModelScope.launch {
             chatRepository.getMessages(issueId).collect { result ->
@@ -65,6 +66,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    // send message in issue chat
     fun sendMessage(
         issueId: String, senderId: String, senderName: String, text: String, isAdmin: Boolean
     ) {

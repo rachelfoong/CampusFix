@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// Used by ReportFaultScreen
 
 // TODO FOR REPORTS:
 // Take a photo from the UI (or select from device storage?)
@@ -45,11 +46,14 @@ class ReportViewModel : ViewModel() {
     fun selectCategory(category: IssueCategory) {
         _selectedCategory.value = category
     }
-    
+
+    // firebase storage uri to the actual photo - upload function TODO
     fun setPhotoUri(uri: String?) {
         _photoUri.value = uri
     }
-    
+
+    // Create issue in Firebase
+    // TODO - store location lat/long
     fun submitReport(
         title: String,
         description: String,

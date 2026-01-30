@@ -25,9 +25,9 @@ class IssuesRepositoryImpl(
     private val firestore: FirebaseFirestore
 ) : IssuesRepository {
 
-    // Changed collection name from "issues" to "reports" to match existing data
     private val issuesCollection = firestore.collection("reports")
 
+    // Create issue in firebase
     override suspend fun submitIssue(issue: Issue): Flow<DataResult<String>> = flow {
         emit(DataResult.Loading)
         try {
@@ -47,6 +47,7 @@ class IssuesRepositoryImpl(
         }
     }
 
+    // Get a user's issues from firebase
     override fun getMyIssues(userId: String): Flow<DataResult<List<Issue>>> = callbackFlow {
         trySend(DataResult.Loading)
         Log.d("IssuesRepository", "Starting query for userId: $userId from reports collection")
@@ -81,6 +82,7 @@ class IssuesRepositoryImpl(
         awaitClose { subscription.remove() }
     }
 
+    // Get all issues from firebase for admin
     override fun getAllIssues(): Flow<DataResult<List<Issue>>> = callbackFlow {
         trySend(DataResult.Loading)
         
@@ -108,6 +110,7 @@ class IssuesRepositoryImpl(
         awaitClose { subscription.remove() }
     }
 
+    // Change issue status in firebase
     override suspend fun updateIssueStatus(issueId: String, status: IssueStatus): Flow<DataResult<Boolean>> = flow {
         emit(DataResult.Loading)
         try {
@@ -125,6 +128,7 @@ class IssuesRepositoryImpl(
         }
     }
 
+    // Get an issue by ID from firebase
     override suspend fun getIssueById(issueId: String): Flow<DataResult<Issue>> = flow {
         emit(DataResult.Loading)
         try {

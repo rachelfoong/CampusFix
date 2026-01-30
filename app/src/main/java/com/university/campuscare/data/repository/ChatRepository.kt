@@ -21,6 +21,7 @@ class ChatRepositoryImpl(
 
     private val messagesCollection = firestore.collection("chats")
 
+    // Get messages by issue id
     override fun getMessages(issueId: String): Flow<DataResult<List<Message>>> = callbackFlow {
         trySend(DataResult.Loading)
 
@@ -42,6 +43,7 @@ class ChatRepositoryImpl(
         awaitClose { subscription.remove() }
     }
 
+    // Create message in firebase
     override suspend fun sendMessage(message: Message): DataResult<Unit> {
         return try {
             val docRef = messagesCollection.document()

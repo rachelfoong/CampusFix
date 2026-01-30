@@ -60,7 +60,8 @@ class AdminViewModel : ViewModel() {
         loadAllIssues()
         loadAllUsers()
     }
-    
+
+    // Get all issues to display to the admin
     fun loadAllIssues() {
         viewModelScope.launch {
             issuesRepository.getAllIssues().collect { result ->
@@ -83,6 +84,7 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    // Get all users for display to the admin
     fun loadAllUsers() {
         viewModelScope.launch {
             try {
@@ -94,7 +96,8 @@ class AdminViewModel : ViewModel() {
             }
         }
     }
-    
+
+    // Admin dashboard stats
     private fun updateStats() {
         val issues = _allIssues.value
         _stats.value = AdminStats(
@@ -117,6 +120,7 @@ class AdminViewModel : ViewModel() {
         _searchQuery.value = query
     }
 
+    // Create notification in firebase using notifications repo
     private fun createNotification(title: String, notificationType: NotificationType,message: String, issueId: String, reportedBy: String) {
         viewModelScope.launch {
             val newNotification = Notification(
@@ -130,6 +134,7 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    // Update issue status in firebase and create notification
     private fun updateIssueStatus(issueId: String, notificationType: NotificationType, newStatus: IssueStatus, notificationTitle: String, notificationMessage: String) {
         viewModelScope.launch {
             try {
@@ -157,12 +162,14 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    // Mark issue as accepted from admin screen
     fun acceptIssue(issueId: String) {
         val acceptanceMessageTemplate = "Your issue \"%s\" has been reviewed and is now in progress."
         val acceptanceNotificationTitle = "Issue accepted for review"
         updateIssueStatus(issueId, NotificationType.STATUS_UPDATE,IssueStatus.IN_PROGRESS, acceptanceNotificationTitle, acceptanceMessageTemplate)
     }
 
+    // Mark issue as resolved from admin screen
     fun resolveIssue(issueId: String) {
         val resolvedMessageTemplate = "Your issue \"%s\" has been resolved."
         val resolvedNotificationTitle = "Issue resolved"

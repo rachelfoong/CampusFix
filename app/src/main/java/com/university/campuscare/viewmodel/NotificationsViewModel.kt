@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 // TODO FOR NOTIFICATIONS:
 // Note - AlertsTab.kt is currently used for the notifications UI, not NotificationsScreen!
 // Delete a notification from the UI
+// Delete ALL notifications from the UI
 // Mark individual notifications as read from the UI
 // Mark ALL notifications as read from the UI
 class NotificationsViewModel : ViewModel() {
@@ -30,6 +31,7 @@ class NotificationsViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    // Load list of notifications for user
     fun loadNotifications(userId: String? = null) {
         if (userId == null) return
         
@@ -57,7 +59,8 @@ class NotificationsViewModel : ViewModel() {
             }
         }
     }
-    
+
+    // Mark a notification as read - TODO in the UI
     fun markAsRead(userId: String, notificationId: String) {
         viewModelScope.launch {
             try {
@@ -75,7 +78,8 @@ class NotificationsViewModel : ViewModel() {
             }
         }
     }
-    
+
+    // Mark all notifications as read - TODO in the UI
     fun markAllAsRead(userId: String) {
         viewModelScope.launch {
             try {
