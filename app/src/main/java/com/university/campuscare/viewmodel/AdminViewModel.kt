@@ -49,7 +49,7 @@ class AdminViewModel : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow<IssueCategory?>(null)
     val selectedCategory: StateFlow<IssueCategory?> = _selectedCategory.asStateFlow()
-    
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
     
@@ -115,7 +115,7 @@ class AdminViewModel : ViewModel() {
     fun setCategoryFilter(category: IssueCategory?) {
         _selectedCategory.value = category
     }
-    
+
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
     }
@@ -175,7 +175,7 @@ class AdminViewModel : ViewModel() {
         val resolvedNotificationTitle = "Issue resolved"
         updateIssueStatus(issueId, NotificationType.ISSUE_RESOLVED, IssueStatus.RESOLVED, resolvedNotificationTitle, resolvedMessageTemplate)
     }
-    
+
     fun getFilteredIssues(): List<Issue> {
         var filtered = _allIssues.value
         
@@ -186,7 +186,7 @@ class AdminViewModel : ViewModel() {
         _selectedCategory.value?.let { category ->
             filtered = filtered.filter { it.category.equals(category.name, ignoreCase = true) }
         }
-        
+
         if (_searchQuery.value.isNotBlank()) {
             filtered = filtered.filter { issue ->
                 issue.title.contains(_searchQuery.value, ignoreCase = true) ||

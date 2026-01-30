@@ -275,7 +275,7 @@ fun AdminAnalyticsTab() {
 fun AdminUsersTab(viewModel: AdminViewModel) {
     val allUsers by viewModel.allUsers.collectAsState()
     val allIssues by viewModel.allIssues.collectAsState()
-    
+
     // Specifically filter to only show Student users (excludes Staff and Admin)
     val studentUsers = allUsers.filter { it.role == "STUDENT" }
 
